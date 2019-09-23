@@ -8,7 +8,7 @@ $toConvert | ForEach-Object -Begin { $i = 0 } -Process {
     $oldName = $_.Name
     $newName = $oldName.Replace(".bmp", ".png")
     magick.exe convert -transparent "#ff00ff" "$oldName" "$newName"
-    if ($?) {
+    if ((Get-Item "$newName" -EA SilentlyContinue)) {
         Remove-Item "$oldName"
     }
     $i = $i + 1
