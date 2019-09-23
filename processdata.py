@@ -12,52 +12,52 @@ Desc = namedtuple('Desc', 'text props')
 
 MAP_PROPS = {
     # 'Applicable job': 'Classe',
-    'Ataque': 'Ataque',
+    'Ataque': 'attack',
     # 'Class': 'Classe',
     # 'Classe aplicável': 'Classe',
     # 'Classe': 'Classe',
     # 'Classes que utilizam': 'Classe',
     # 'Classes que utlizam': 'Classe',
     # 'Classes': 'Classe',
-    'Combina com': 'Usado em',
-    'Def': 'Defesa',
-    'Def.': 'Defesa',
-    'Defense': 'Defesa',
-    'Defesa': 'Defesa',
+    'Combina com': 'useOn',
+    'Def': 'defense',
+    'Def.': 'defense',
+    'Defense': 'defense',
+    'Defesa': 'defense',
     # 'Duração': 'Duração',
-    'Elemento': 'Elemento',
-    'Equipa em': 'Equipa em',
-    'Equipado em': 'Equipa em',
-    'Equipar em': 'Equipa em',
-    'Equipe em': 'Equipa em',
-    'Força de ataque': 'Ataque',
-    'Forçca de ataque': 'Ataque',
-    'Head position': 'Equipa em',
+    'Elemento': 'element',
+    'Equipa em': 'equipIn',
+    'Equipado em': 'equipIn',
+    'Equipar em': 'equipIn',
+    'Equipe em': 'equipIn',
+    'Força de ataque': 'attack',
+    'Forçca de ataque': 'attack',
+    'Head position': 'equipIn',
     # 'Job': 'Classe',
-    'Limite de nível': 'Nível máximo',
+    'Limite de nível': 'maximumLevel',
     # 'Negociação': 'Negociação',
-    'Nivel necessário': 'Nível mínimo',
-    'Nv. mínimo necessário': 'Nível mínimo',
-    'Níveis permitidos': 'Nível mínimo',
-    'Nível da arma': 'Nível da arma',
-    'Nível limite': 'Nível máximo',
-    'Nível mínimo': 'Nível mínimo',
-    'Nível necessário': 'Nível mínimo',
-    'Nível necessário.': 'Nível mínimo',
-    'Nível necesário': 'Nível mínimo',
-    'Nível requerido': 'Nível mínimo',
-    'Nível requisitado': 'Nível mínimo',
-    'Peso': 'Peso',
-    'Posição': 'Equipa em',
+    'Nivel necessário': 'minimumLevel',
+    'Nv. mínimo necessário': 'minimumLevel',
+    'Níveis permitidos': 'minimumLevel',
+    'Nível da arma': 'weaponLevel',
+    'Nível limite': 'maximumLevel',
+    'Nível mínimo': 'minimumLevel',
+    'Nível necessário': 'minimumLevel',
+    'Nível necessário.': 'minimumLevel',
+    'Nível necesário': 'minimumLevel',
+    'Nível requerido': 'minimumLevel',
+    'Nível requisitado': 'minimumLevel',
+    'Peso': 'weigth',
+    'Posição': 'equipIn',
     # 'Profissões que utilizam': 'Classe',
-    'Propriedade': 'Elemento',
-    'Required lv': 'Nível mínimo',
-    'Tipo de arma': 'Tipo de item',
-    'Tipo de item': 'Tipo de item',
-    'Tipo': 'Tipo de item',
-    'Type': 'Tipo de item',
-    'Usado em': 'Equipa em',
-    # 'Utilização': 'Usado em',
+    'Propriedade': 'element',
+    'Required lv': 'minimumLevel',
+    'Tipo de arma': 'itemType',
+    'Tipo de item': 'itemType',
+    'Tipo': 'itemType',
+    'Type': 'itemType',
+    'Usado em': 'equipIn',
+    # 'Utilização': 'useOn',
 }
 
 
@@ -90,23 +90,23 @@ def processprops(text):
         val = vals[1].strip(' :')
 
         # several workarounds
-        if propname == 'Tipo de item' and val == 'Neutro':
-            props['Elemento'].add(val)
-        elif propname.startswith('Classe') and 'Equipamento' in val and 'Carta' not in props['Tipo de item']:
-            props['Tipo de item'].add(val)
-        elif propname == 'Equipa em' and val == '1':
+        if propname == 'itemType' and val == 'Neutro':
+            props['element'].add(val)
+        elif propname.startswith('Classe') and 'Equipamento' in val and 'Carta' not in props['itemType']:
+            props['itemType'].add(val)
+        elif propname == 'equipIn' and val == '1':
             continue
-        elif propname == 'Peso' and val == '1#':
+        elif propname == 'weigth' and val == '1#':
             props[propname].add('1')
         else:
             props[propname].add(val)
 
-    if 'Peso' in props and len(props['Peso']) > 1 and 'caixa' in ''.join(line.lower() for line in lines[:3]):
-        props['Peso'] = set('1')
+    if 'weigth' in props and len(props['weigth']) > 1 and 'caixa' in ''.join(line.lower() for line in lines[:3]):
+        props['weigth'] = set('1')
 
     props = {prop: vals.pop() for prop, vals in props.items()}
 
-    for splitprop in ['Classe', 'Equipa em']:
+    for splitprop in ['Classe', 'equipIn']:
         if splitprop not in props:
             continue
 
@@ -178,7 +178,7 @@ def processtable(fpath):
 def processitem(item):
     props = item.desc.props if item.desc else {}
     for name, val in props.items():
-        if name in {'Ataque', 'Defesa', 'Nível mínimo', 'Nível máximo', 'Peso'}:
+        if name in {'attack', 'defense', 'minimumLevel', 'maximumLevel', 'weigth'}:
             try:
                 props[name] = float(val)
             except ValueError:
@@ -237,10 +237,10 @@ def processdata(data_dir):
             continue
 
         for prop, val in item.desc.props.items():
-            if prop not in {'Elemento', 'Equipa em', 'Nível da arma', 'Tipo de item', 'Usado em'}:
+            if prop not in {'element', 'equipIn', 'weaponLevel', 'itemType', 'useOn'}:
                 continue
 
-            if prop in {'Classe', 'Equipa em'}:
+            if prop in {'Classe', 'equipIn'}:
                 metaprops[prop] = metaprops[prop] | val
             else:
                 metaprops[prop].add(val)
