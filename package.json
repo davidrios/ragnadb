@@ -2,16 +2,19 @@
   "name": "ragnadb",
   "version": "0.0.1",
   "description": "An offline browser Ragnarok Online database",
-  "productName": "Ragnarok Online DB",
+  "productName": "Ragnarok Online Item DB",
   "cordovaId": "tech.ressonancia.ragnadb",
   "author": "David Rios",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "echo \"No test specified\" && exit 0",
+    "buildindex": "node ./buildindex.js"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "lunr": "^2.3.6",
+    "pouchdb": "^7.1.1",
     "quasar": "^1.0.0",
     "vue-i18n": "^8.0.0"
   },
@@ -21,7 +24,8 @@
     "babel-eslint": "^10.0.1",
     "eslint": "^5.10.0",
     "eslint-loader": "^2.1.1",
-    "eslint-plugin-vue": "^5.0.0"
+    "eslint-plugin-vue": "^5.0.0",
+    "sanitize-html": "^1.20.1"
   },
   "engines": {
     "node": ">= 8.9.0",
