@@ -15,6 +15,7 @@
     "@quasar/extras": "^1.0.0",
     "lunr": "^2.3.6",
     "pouchdb": "^7.1.1",
+    "pouchdb-find": "^7.1.1",
     "quasar": "^1.0.0",
     "vue-i18n": "^8.0.0"
   },

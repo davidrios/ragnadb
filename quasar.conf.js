@@ -46,7 +46,9 @@ module.exports = function (ctx) {
       directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: [
+        'Loading'
+      ]
     },
 
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
@@ -80,7 +82,17 @@ module.exports = function (ctx) {
     devServer: {
       // https: true,
       // port: 8080,
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
+      proxy: {
+        // proxy all requests starting with /api to jsonplaceholder
+        '/data': {
+          target: 'http://127.0.0.1:8000',
+          changeOrigin: true,
+          pathRewrite: {
+            '^/data': ''
+          }
+        }
+      }
     },
 
     // animations: 'all', // --- includes all animations
@@ -97,8 +109,8 @@ module.exports = function (ctx) {
       // workboxPluginMode: 'InjectManifest',
       // workboxOptions: {}, // only for NON InjectManifest
       manifest: {
-        // name: 'Ragnarok Online DB',
-        // short_name: 'Ragnarok Online DB',
+        // name: 'Ragnarok Online Item DB',
+        // short_name: 'Ragnarok Online Item DB',
         // description: 'An offline browser Ragnarok Online database',
         display: 'standalone',
         orientation: 'portrait',

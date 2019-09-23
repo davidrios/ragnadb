@@ -1,4 +1,4 @@
-# Ragnarok Online DB (ragnadb)
+# Ragnarok Online Item DB (ragnadb)
 
 An offline browser Ragnarok Online database
 
