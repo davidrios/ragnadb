@@ -4,10 +4,22 @@
     <q-table
       v-if="!errorMessage"
       title="Itens"
-      :data="itemsList"
-      :columns="itemsColumns"
       row-key="id"
+      :data="itemsData"
+      :columns="itemsColumns"
+      :pagination.sync="itemsPagination"
+      :filter="itemsFilter"
+      :loading="itemsLoading"
+      @request="onItemsRequest"
       >
+      <template v-slot:top-right>
+        <q-input borderless dense debounce="300" v-model="itemsFilter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search" ></q-icon>
+          </template>
+        </q-input>
+      </template>
+
       <template v-slot:body-cell-sprite="props">
         <q-td :props="props">
           <div class="sprite-container flex flex-center">
@@ -50,7 +62,16 @@ export default {
   name: 'PageIndex',
   data () {
     return {
-      itemsList: [],
+      itemsPagination: {
+        sortBy: null,
+        descending: false,
+        page: 1,
+        rowsPerPage: 10,
+        rowsNumber: 0
+      },
+      itemsFilter: '',
+      itemsLoading: true,
+      itemsData: [],
       itemsColumns: [
         {
           field: 'sprite',
@@ -139,7 +160,6 @@ export default {
 
           this.db.destroy().then(() => {
             this.db = new PouchDB('items')
-
             this.db.bulkDocs(Object.values(this.rawDb.items)).then(() => {
               // this.db.createIndex({
               //   index: {
@@ -147,36 +167,51 @@ export default {
               //   }
               // }).then(() => {
               this.$q.loading.hide()
+              this.onItemsRequest({ pagination: this.itemsPagination, filter: null })
               // })
             })
 
             window.db = this.db
           })
 
-          const newItems = []
-
-          for (const iid in this.rawDb.items) {
-            const item = this.rawDb.items[iid]
-            if (parseInt(iid) > 2000) {
-              continue
-            }
-
-            newItems.push({
-              sprite: item.res,
-              id: item.id,
-              name: item.name,
-              attack: item.props ? item.props.attack : null,
-              defense: item.props ? item.props.defense : null,
-              minimumLevel: item.props ? item.props.minimumLevel || '1' : null,
-              weight: item.props ? item.props.weigth : null
-            })
-          }
-
-          this.itemsList = newItems
-
           window.rawDb = this.rawDb
           window.lunrIndex = this.lunrIndex
         })
+      })
+    },
+    onItemsRequest (props) {
+      this.itemsLoading = true
+      console.log(props)
+      this.db.allDocs(
+        {
+          limit: props.pagination.rowsPerPage,
+          skip: (props.pagination.page - 1) * props.pagination.rowsPerPage,
+          include_docs: true
+        }
+      ).then((res) => {
+        const newItems = []
+
+        for (const row of res.rows) {
+          const item = row.doc
+          newItems.push({
+            sprite: item.res,
+            id: item.id,
+            name: item.name,
+            attack: item.props ? item.props.attack : null,
+            defense: item.props ? item.props.defense : null,
+            minimumLevel: item.props ? item.props.minimumLevel || '1' : null,
+            weight: item.props ? item.props.weigth : null
+          })
+        }
+
+        this.itemsData = newItems
+
+        this.itemsPagination = {
+          ...props.pagination,
+          rowsNumber: res.total_rows
+        }
+
+        this.itemsLoading = false
       })
     }
   }
